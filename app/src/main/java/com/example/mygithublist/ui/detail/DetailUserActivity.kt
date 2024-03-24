@@ -60,18 +60,14 @@ class DetailUserActivity : AppCompatActivity() {
         }
 
         viewModel.getUserDetail().observe(this) {
-            if (it != null) {
-                binding.apply {
-                    tvName.text = it.name
-                    tvUsername.text = it.login
-                    tvFollowers.text = StringBuilder(it.followers.toString()).append(" Followers")
-                    tvFollowing.text = StringBuilder(it.following.toString()).append(" Following")
-                    Glide.with(this@DetailUserActivity).load(it.avatar_url)
-                        .transition(DrawableTransitionOptions.withCrossFade()).centerCrop()
-                        .into(ivProfile)
-                }
-            } else {
-                binding.tvName.text = NO_NAME
+            binding.apply {
+                tvName.text = it.name ?: NO_NAME
+                tvUsername.text = it.login
+                tvFollowers.text = StringBuilder(it.followers.toString()).append(" Followers")
+                tvFollowing.text = StringBuilder(it.following.toString()).append(" Following")
+                Glide.with(this@DetailUserActivity).load(it.avatar_url)
+                    .transition(DrawableTransitionOptions.withCrossFade()).centerCrop()
+                    .into(ivProfile)
             }
         }
 
