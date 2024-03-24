@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">My Github List</string>
+    <string name="tab_1">Followers</string>
+    <string name="tab_2">Following</string>
+    <string name="username_hint">Username</string>
+    <string name="btn_search_cd">Button Search</string>
+    <string name="ic_logo_cd">Logo App</string>
+    <string name="fab_fav_cd">Favorite Float Action Button</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="menu_settings">Settings</string>
+    <string name="menu_favorite">Favorite</string>
+</resources>

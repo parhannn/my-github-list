@@ -1,0 +1,29 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.MyGithubList" parent="Theme.Material3.DayNight">
+        <!-- Customize your light theme here. -->
+        <item name="colorPrimary">@color/soft_green</item>
+        <item name="android:windowActivityTransitions">true</item>
+        <item name="android:windowEnterTransition">@transition/trans_anim</item>
+        <item name="android:windowExitTransition">@transition/trans_anim</item>
+    </style>
+
+    <style name="Theme.MyGithubList" parent="Base.Theme.MyGithubList" />
+
+    <style name="RoundedImageView">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <style name="Responsive">
+        <item name="android:tint">@color/soft_black</item>
+    </style>
+
+    <style name="DrawableResponsive">
+        <item name="android:drawableTint">@color/soft_black</item>
+    </style>
+
+    <style name="TabLayoutResponsive">
+        <item name="android:background">@color/soft_white</item>
+    </style>
+</resources>

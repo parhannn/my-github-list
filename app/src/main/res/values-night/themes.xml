@@ -1,0 +1,24 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.MyGithubList" parent="Theme.Material3.DayNight">
+        <!-- Customize your dark theme here. -->
+        <item name="colorPrimary">@color/soft_green</item>
+    </style>
+
+    <style name="RoundedImageView">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <style name="Responsive">
+        <item name="android:tint">@color/soft_white</item>
+    </style>
+
+    <style name="DrawableResponsive">
+        <item name="android:drawableTint">@color/soft_white</item>
+    </style>
+
+    <style name="TabLayoutResponsive">
+        <item name="android:background">@color/soft_white</item>
+    </style>
+</resources>
