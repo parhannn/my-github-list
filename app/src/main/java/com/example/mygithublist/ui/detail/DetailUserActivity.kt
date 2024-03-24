@@ -62,7 +62,7 @@ class DetailUserActivity : AppCompatActivity() {
         viewModel.getUserDetail().observe(this) {
             if (it != null) {
                 binding.apply {
-                    tvName.text = if (it.name == null) "User doesn't have name" else it.name
+                    tvName.text = it.name
                     tvUsername.text = it.login
                     tvFollowers.text = StringBuilder(it.followers.toString()).append(" Followers")
                     tvFollowing.text = StringBuilder(it.following.toString()).append(" Following")
@@ -70,6 +70,8 @@ class DetailUserActivity : AppCompatActivity() {
                         .transition(DrawableTransitionOptions.withCrossFade()).centerCrop()
                         .into(ivProfile)
                 }
+            } else {
+                binding.tvName.text = NO_NAME
             }
         }
 
@@ -78,12 +80,12 @@ class DetailUserActivity : AppCompatActivity() {
             val count = viewModel.checkUser(id)
             withContext(Dispatchers.Main) {
                 if (count != null) {
-                    if (count > 0) {
+                    _isChecked = if (count > 0) {
                         binding.fabFavorite.setImageResource(R.drawable.ic_favorited)
-                        _isChecked = true
+                        true
                     } else {
                         binding.fabFavorite.setImageResource(R.drawable.ic_favorite)
-                        _isChecked = false
+                        false
                     }
                 }
             }
@@ -122,6 +124,7 @@ class DetailUserActivity : AppCompatActivity() {
         const val EXTRA_USERNAME = "extra_username"
         const val EXTRA_ID = "extra_id"
         const val EXTRA_URL = "extra_url"
+        const val NO_NAME = "User doesn't have name"
 
         @StringRes
         private val TAB_TITLES = intArrayOf(
