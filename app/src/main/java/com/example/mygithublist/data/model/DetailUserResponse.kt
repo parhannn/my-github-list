@@ -13,6 +13,9 @@ data class DetailUserResponse(
     @field:SerializedName("avatar_url")
     val avatar_url: String,
 
+    @field:SerializedName("html_url")
+    val githubLink: String,
+
     @field:SerializedName("followers_url")
     val followers_url: String,
 

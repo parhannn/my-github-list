@@ -7,6 +7,21 @@
     tools:context=".ui.detail.DetailUserActivity">
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_share"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        android:contentDescription="@string/fab_share_cd"
+        android:contextClickable="true"
+        android:focusable="true"
+        android:src="@android:drawable/ic_menu_share"
+        app:backgroundTint="@color/soft_green"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_favorite"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -124,7 +139,7 @@
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/view_pager"
                 android:layout_width="match_parent"
-                android:layout_height="500dp"/>
+                android:layout_height="500dp" />
         </LinearLayout>
     </ScrollView>
 
