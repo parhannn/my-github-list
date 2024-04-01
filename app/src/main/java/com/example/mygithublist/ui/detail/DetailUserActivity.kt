@@ -2,11 +2,10 @@ package com.example.mygithublist.ui.detail
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.example.mygithublist.R
@@ -14,9 +13,9 @@ import com.example.mygithublist.databinding.ActivityDetailUserBinding
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.concurrent.Executors
 
 class DetailUserActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDetailUserBinding
@@ -32,8 +31,6 @@ class DetailUserActivity : AppCompatActivity() {
         val avatarUrl = intent.getStringExtra(EXTRA_URL)
         val mBundle = Bundle()
         val sectionPagerAdapter = SectionPagerAdapter(this, mBundle)
-        val handler = Handler(Looper.getMainLooper())
-        val executors = Executors.newSingleThreadExecutor()
 
         mBundle.putString(EXTRA_USERNAME, username)
 
@@ -41,33 +38,31 @@ class DetailUserActivity : AppCompatActivity() {
 
         viewModel.setUserDetail(username)
 
-        executors.execute {
-            try {
-                for (i in 0..10) {
-                    Thread.sleep(500)
-                    val progress = i * 10
-                    handler.post {
-                        if (progress == 100) {
-                            showLoading(false)
-                        } else {
-                            showLoading(true)
+        lifecycleScope.launch(Dispatchers.Default) {
+            for (i in 0..10) {
+                delay(300)
+                val progress = i * 10
+                withContext(Dispatchers.Main) {
+                    if (progress == 100) {
+                        showLoading(false)
+                        viewModel.getUserDetail().observe(this@DetailUserActivity) {
+                            binding.apply {
+                                tvName.text = it.name ?: NO_NAME
+                                tvUsername.text = it.login
+                                tvFollowers.text =
+                                    StringBuilder(it.followers.toString()).append(" Followers")
+                                tvFollowing.text =
+                                    StringBuilder(it.following.toString()).append(" Following")
+                                Glide.with(this@DetailUserActivity).load(it.avatar_url)
+                                    .transition(DrawableTransitionOptions.withCrossFade())
+                                    .centerCrop()
+                                    .into(ivProfile)
+                            }
                         }
+                    } else {
+                        showLoading(true)
                     }
                 }
-            } catch (e: InterruptedException) {
-                e.printStackTrace()
-            }
-        }
-
-        viewModel.getUserDetail().observe(this) {
-            binding.apply {
-                tvName.text = it.name ?: NO_NAME
-                tvUsername.text = it.login
-                tvFollowers.text = StringBuilder(it.followers.toString()).append(" Followers")
-                tvFollowing.text = StringBuilder(it.following.toString()).append(" Following")
-                Glide.with(this@DetailUserActivity).load(it.avatar_url)
-                    .transition(DrawableTransitionOptions.withCrossFade()).centerCrop()
-                    .into(ivProfile)
             }
         }
 

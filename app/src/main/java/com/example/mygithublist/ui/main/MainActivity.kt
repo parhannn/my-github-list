@@ -6,13 +6,15 @@ import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mygithublist.R
 import com.example.mygithublist.data.model.User
@@ -20,7 +22,12 @@ import com.example.mygithublist.databinding.ActivityMainBinding
 import com.example.mygithublist.ui.detail.DetailUserActivity
 import com.example.mygithublist.ui.favorite.FavoriteActivity
 import com.example.mygithublist.ui.settings.SettingActivity
-import java.util.concurrent.Executors
+import com.example.mygithublist.ui.settings.SettingPreferences
+import com.example.mygithublist.ui.settings.dataStore
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -29,11 +36,27 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("NotifyDataSetChanged")
     override fun onCreate(savedInstanceState: Bundle?) {
-        val handler = Handler(Looper.getMainLooper())
-        val executors = Executors.newSingleThreadExecutor()
+        val preferences = SettingPreferences.getInstance(application.dataStore)
+
+        viewModel = ViewModelProvider(
+            this,
+            ViewModelFactory(preferences)
+        )[MainViewModel::class.java]
 
         instance = this
+
+        viewModel.getThemeSettings().observe(this) { isDarkModeActive: Boolean ->
+            if (isDarkModeActive) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+        }
+
+        installSplashScreen()
+
         super.onCreate(savedInstanceState)
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -52,48 +75,41 @@ class MainActivity : AppCompatActivity() {
             }
 
         })
-        viewModel = ViewModelProvider(
-            this,
-            ViewModelProvider.NewInstanceFactory()
-        )[MainViewModel::class.java]
 
         binding.apply {
             rvUser.layoutManager = LinearLayoutManager(this@MainActivity)
             rvUser.setHasFixedSize(true)
             rvUser.adapter = adapter
+        }
 
-            btnSearch.setOnClickListener {
-                executors.execute {
-                    try {
-                        for (i in 0..10) {
-                            Thread.sleep(500)
-                            val progress = i * 10
-                            handler.post {
-                                if (progress == 100) {
-                                    showLoading(false)
-                                } else {
-                                    showLoading(true)
+        binding.btnSearch.setOnClickListener {
+            lifecycleScope.launch(Dispatchers.Default) {
+                for (i in 0..10) {
+                    delay(300)
+                    val progress = i * 10
+                    withContext(Dispatchers.Main) {
+                        if (progress == 100) {
+                            showLoading(false)
+                            viewModel.getSearchUser().observe(this@MainActivity) {
+                                if (it != null) {
+                                    adapter.setList(it)
                                 }
                             }
+                        } else {
+                            showLoading(true)
                         }
-                    } catch (e: InterruptedException) {
-                        e.printStackTrace()
                     }
                 }
-                searchUser()
+
             }
-            etQuery.setOnKeyListener { _, keyCode, event ->
-                if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
-                    searchUser()
-                    return@setOnKeyListener true
-                }
-                return@setOnKeyListener false
-            }
+            searchUser()
         }
-        viewModel.getSearchUser().observe(this) {
-            if (it != null) {
-                adapter.setList(it)
+        binding.etQuery.setOnKeyListener { _, keyCode, event ->
+            if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
+                searchUser()
+                return@setOnKeyListener true
             }
+            return@setOnKeyListener false
         }
     }
 
@@ -128,7 +144,9 @@ class MainActivity : AppCompatActivity() {
         binding.apply {
             val query = etQuery.text.toString()
 
-            if (query.isEmpty()) return showLoading(true)
+            if (query.isEmpty()) {
+                Toast.makeText(this@MainActivity, "Please insert Username!", Toast.LENGTH_SHORT).show()
+            }
             viewModel.setSearchUser(query)
         }
     }

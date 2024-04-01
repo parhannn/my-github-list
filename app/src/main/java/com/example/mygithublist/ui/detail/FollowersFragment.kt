@@ -2,16 +2,18 @@ package com.example.mygithublist.ui.detail
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mygithublist.databinding.FragmentFollowBinding
-import java.util.concurrent.Executors
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class FollowersFragment : Fragment() {
     private var _binding: FragmentFollowBinding? = null
@@ -33,8 +35,6 @@ class FollowersFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val handler = Handler(Looper.getMainLooper())
-        val executors = Executors.newSingleThreadExecutor()
         val args = arguments
         username = args?.getString(DetailUserActivity.EXTRA_USERNAME).toString()
 
@@ -53,27 +53,22 @@ class FollowersFragment : Fragment() {
         )[FollowersViewModel::class.java]
         viewModel.setListFollowers(username)
 
-        executors.execute {
-            try {
-                for (i in 0..10) {
-                    Thread.sleep(500)
-                    val progress = i * 10
-                    handler.post {
-                        if (progress == 100) {
-                            showLoading(false)
-                        } else {
-                            showLoading(true)
+        lifecycleScope.launch(Dispatchers.Default) {
+            for (i in 0..10) {
+                delay(300)
+                val progress = i * 10
+                withContext(Dispatchers.Main) {
+                    if (progress == 100) {
+                        showLoading(false)
+                        viewModel.getListFollowers().observe(viewLifecycleOwner) {
+                            if (it != null) {
+                                adapter.setList(it)
+                            }
                         }
+                    } else {
+                        showLoading(true)
                     }
                 }
-            } catch (e: InterruptedException) {
-                e.printStackTrace()
-            }
-        }
-
-        viewModel.getListFollowers().observe(viewLifecycleOwner) {
-            if (it != null) {
-                adapter.setList(it)
             }
         }
     }

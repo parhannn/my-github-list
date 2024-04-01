@@ -4,17 +4,19 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mygithublist.data.local.FavoriteUser
 import com.example.mygithublist.data.model.User
 import com.example.mygithublist.databinding.ActivityFavoriteBinding
 import com.example.mygithublist.ui.detail.DetailUserActivity
 import com.example.mygithublist.ui.main.UserAdapter
-import java.util.concurrent.Executors
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class FavoriteActivity : AppCompatActivity() {
     private lateinit var binding: ActivityFavoriteBinding
@@ -23,9 +25,6 @@ class FavoriteActivity : AppCompatActivity() {
 
     @SuppressLint("NotifyDataSetChanged")
     override fun onCreate(savedInstanceState: Bundle?) {
-        val handler = Handler(Looper.getMainLooper())
-        val executors = Executors.newSingleThreadExecutor()
-
         super.onCreate(savedInstanceState)
         binding = ActivityFavoriteBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -37,21 +36,23 @@ class FavoriteActivity : AppCompatActivity() {
             this
         )[FavoriteViewModel::class.java]
 
-        executors.execute {
-            try {
-                for (i in 0..10) {
-                    Thread.sleep(500)
-                    val progress = i * 10
-                    handler.post {
-                        if (progress == 100) {
-                            showLoading(false)
-                        } else {
-                            showLoading(true)
+        lifecycleScope.launch(Dispatchers.Default) {
+            for (i in 0..10) {
+                delay(300)
+                val progress = i * 10
+                withContext(Dispatchers.Main) {
+                    if (progress == 100) {
+                        showLoading(false)
+                        viewModel.getFavoriteUser()?.observe(this@FavoriteActivity) {
+                            if (it != null) {
+                                val list = mapList(it)
+                                adapter.setList(list)
+                            }
                         }
+                    } else {
+                        showLoading(true)
                     }
                 }
-            } catch (e: InterruptedException) {
-                e.printStackTrace()
             }
         }
 
@@ -71,13 +72,6 @@ class FavoriteActivity : AppCompatActivity() {
             rvUserFav.setHasFixedSize(true)
             rvUserFav.layoutManager = LinearLayoutManager(this@FavoriteActivity)
             rvUserFav.adapter = adapter
-        }
-
-        viewModel.getFavoriteUser()?.observe(this) {
-            if (it != null) {
-                val list = mapList(it)
-                adapter.setList(list)
-            }
         }
     }
 

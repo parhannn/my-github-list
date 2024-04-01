@@ -1,6 +1,6 @@
 <resources>
     <!-- Base application theme. -->
-    <style name="Base.Theme.MyGithubList" parent="Theme.Material3.DayNight">
+    <style name="Theme.MyGithubList" parent="Theme.Material3.DayNight">
         <!-- Customize your dark theme here. -->
         <item name="colorPrimary">@color/soft_green</item>
     </style>
@@ -20,5 +20,12 @@
 
     <style name="TabLayoutResponsive">
         <item name="android:background">@color/soft_white</item>
+    </style>
+
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/soft_dark_green</item>
+        <item name="windowSplashScreenAnimationDuration">5000</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_logo</item>
+        <item name="postSplashScreenTheme">@style/Theme.MyGithubList</item>
     </style>
 </resources>

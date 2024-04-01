@@ -24,8 +24,8 @@ class SettingActivity : AppCompatActivity() {
 
         viewModel.getThemeSettings().observe(this) { isDarkModeActive: Boolean ->
             binding.apply {
-                if (isDarkModeActive) {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                if (isDarkModeActive) {AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+
                     darkModeSwitch.isChecked = true
                 } else {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
